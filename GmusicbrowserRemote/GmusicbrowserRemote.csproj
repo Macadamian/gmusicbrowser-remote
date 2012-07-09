@@ -59,4 +59,10 @@
     <AndroidResource Include="Resources\drawable\Icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\dependencies\RestSharp\RestSharp.MonoDroid\RestSharp.MonoDroid.csproj">
+      <Project>{1B662C38-984F-4B6A-89B5-AFF7FCBE43A2}</Project>
+      <Name>RestSharp.MonoDroid</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
