@@ -1,0 +1,3 @@
+[submodule "dependencies/RestSharp"]
+	path = dependencies/RestSharp
+	url = git://github.com/restsharp/RestSharp.git
