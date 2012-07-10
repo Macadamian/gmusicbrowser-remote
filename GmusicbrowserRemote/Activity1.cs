@@ -7,52 +7,15 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Android.Util;
-using RestSharp;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace GmusicbrowserRemote
 {
-    public class Song {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Artist { get; set; }
-        public int Length {get; set; }
-
-        public int? Rating { get; set; }
-
-    }
-
-    // {"volume":"94","current":{"length":217,"artist":"Potshot","title":"Ultima 6 Gates of Creation OC ReMix","id":1779,"rating":80},"queue":[],"playing":1,"playposition":95.364219}
-    public class PlayerState {
-        public Song Current { get; set; }
-
-        /// <summary>
-        /// Gets or sets the playing state.
-        /// </summary>
-        /// <value>
-        /// 1 for playing, 0 for paused.
-        /// </value>
-        public int? Playing { get; set; }
-
-        /// <summary>
-        /// Gets or sets the volume.
-        /// 
-        /// NB. Only nullable so that serializing the class for posting can optionally include the value.  Incoming should always include it.
-        /// </summary>
-        /// <value>
-        /// The volume, between 0 and 100 (on incoming), or between 0 and 1 (on outgoing, it's a bug in the GMB http-server plugin).
-        /// </value>
-        public float? Volume { get; set; }
-        public double? PlayPosition { get; set; }
-    }
-
     [Activity (Label = "GmusicbrowserRemote", MainLauncher = true)]
     public class Activity1 : Activity
     {
         readonly string c = "RemoteActivity";
 
-        private RestClient gmbClient;
+        Gmusicbrowser gmb;
 
         TextView titleTextView;
 
@@ -70,21 +33,7 @@ namespace GmusicbrowserRemote
 
         SeekBar songSeekBar;
 
-        protected void PushNewPlayerState (PlayerState state) {
-            var req = new RestRequest("/player", Method.POST);
-            req.AddParameter("text/json", JsonConvert.SerializeObject(state, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver(), NullValueHandling = NullValueHandling.Ignore }), ParameterType.RequestBody);
-            gmbClient.ExecuteAsync (req, (response) => {
-                if(response.ResponseStatus == ResponseStatus.Error) {
-                    Log.WriteLine(LogPriority.Error, c, "Network problem posting Player state change to GMB: " + response.ErrorMessage);
-                } else if(response.StatusCode != System.Net.HttpStatusCode.OK) {
-                    Log.WriteLine(LogPriority.Error, c, "Problem posting Player state change to GMB: " + response.StatusCode + " - " + response.ErrorMessage);
-                } else {
-                    HandleUpdatedState (response.Content);
-                }
-            });
-        }
-
-        protected void HandleUpdatedState (PlayerState state) {
+        protected void HandleUpdatedState (Player state) {
             // ANDREW: start here and figure out how to make the deserializer tweakable, OR switch to JSON.net
             Log.WriteLine(Android.Util.LogPriority.Info, "Activity1", String.Format ("SUCCESS, CURRENTLY {0}: {1} " , state.Playing ==  1 ? "Playing" : "Stopped", state.Current.Title));
             RunOnUiThread(() => {
@@ -100,30 +49,30 @@ namespace GmusicbrowserRemote
             });
         }
 
-        protected void HandleUpdatedState (String state) {
-            try {
-                HandleUpdatedState(Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerState>(state));
-            } catch (Exception e) {
-                Log.WriteLine (LogPriority.Error, c, "Problem decoding Player state JSON from GMB: " + e);
-            }
+        protected void PushNewPlayerState (Player state) {
+            gmb.PushNewPlayerState(state).ContinueWith ((playerResult) => {
+                if(playerResult.IsFaulted) {
+                    Log.WriteLine(LogPriority.Error, c, "Problem pushing player state: " + playerResult.Exception);
+                } else {
+                    HandleUpdatedState(playerResult.Result);
+                }
+            });
         }
 
         protected void UpdateFromServer() { 
-            var req = new RestRequest ("/player", Method.GET);
-
-            gmbClient.ExecuteAsync (req, (response) => {
-                if(response.ResponseStatus == ResponseStatus.Error) {
-                    Log.WriteLine(LogPriority.Error, c, "Network problem reading status from GMB: " + response.ErrorMessage + ", " + response.Content + ", " + response.ErrorException);
-                } else if (response.StatusCode != System.Net.HttpStatusCode.OK) {
-                    Log.WriteLine(LogPriority.Error, c, "Problem reading status from GMB: " + response.ErrorMessage + ", " + response.StatusCode + ", " + response.ErrorException);
+            gmb.FetchCurrentPlayerState().ContinueWith((playerResult) => {
+                if(playerResult.IsFaulted) {
+                    Log.WriteLine(LogPriority.Error, c, "Problem fetching player state: " + playerResult.Exception);
                 } else {
-                    HandleUpdatedState(response.Content);
+                    HandleUpdatedState(playerResult.Result);
                 }
             });
         }
 
         protected override void OnCreate (Bundle bundle) {
             base.OnCreate (bundle);
+
+            gmb = new Gmusicbrowser();
 
             // Set our view from the "main" layout resource
             SetContentView (Resource.Layout.Main);
@@ -139,11 +88,9 @@ namespace GmusicbrowserRemote
             volumeSeekBar = FindViewById <SeekBar> (Resource.Id.VolumeSeekBar);
             songSeekBar = FindViewById <SeekBar> (Resource.Id.SongSeekbar);
 
-            gmbClient = new RestClient ("http://macdesktop.orospakr.ca:8081");
-
             playButton.Click += delegate {
                 // button.Text = string.Format ("{0} clicks!", count++);
-                PushNewPlayerState(new PlayerState() { Playing = 1 });
+                gmb.PushNewPlayerState(new Player() { Playing = 1 });
             };
 
             ratingBar.RatingBarChange += (sender, e) => {
@@ -155,7 +102,7 @@ namespace GmusicbrowserRemote
             };
 
             volumeSeekBar.ProgressChanged += (sender, e) => {
-                PushNewPlayerState (new PlayerState() { Volume = volumeSeekBar.Progress / (float)100 });
+                gmb.PushNewPlayerState (new Player() { Volume = volumeSeekBar.Progress / (float)100 });
             };
 
             // Architecture questions:
