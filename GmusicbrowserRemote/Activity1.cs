@@ -33,17 +33,23 @@ namespace GmusicbrowserRemote
 
         SeekBar songSeekBar;
 
-        protected void HandleUpdatedState (Player state) {
-            // ANDREW: start here and figure out how to make the deserializer tweakable, OR switch to JSON.net
+        private Player currentState;
+
+        protected void HandleUpdatedStateFromNetwork (Player state) {
             Log.WriteLine(Android.Util.LogPriority.Info, "Activity1", String.Format ("SUCCESS, CURRENTLY {0}: {1} " , state.Playing ==  1 ? "Playing" : "Stopped", state.Current.Title));
             RunOnUiThread(() => {
+                currentState = state;
                 titleTextView.SetText (state.Current.Title, TextView.BufferType.Normal);
                 artistTextView.SetText (state.Current.Artist, TextView.BufferType.Normal);
-                if (state.Current.Rating.HasValue) {
-                    ratingBar.Rating = state.Current.Rating.Value / (float)20;
+                if(state.Current != null) {
+                    if (state.Current.Rating.HasValue) {
+                        ratingBar.Rating = state.Current.Rating.Value / (float)20;
+                    }
+
+                    songSeekBar.Max = (int)state.Current.Length;
+                    songSeekBar.Progress = (int)state.PlayPosition;
                 }
-                // volumeSeekBar.Progress = state.Volume.Value;
-                // songSeekBar.Progress = 
+                volumeSeekBar.Progress = (int)state.Volume.Value; // volume always has a value
 
                 playButton.SetImageResource(state.Playing == 1 ? Resource.Drawable.media_pause : Resource.Drawable.media_play);
             });
@@ -54,7 +60,7 @@ namespace GmusicbrowserRemote
                 if(playerResult.IsFaulted) {
                     Log.WriteLine(LogPriority.Error, c, "Problem pushing player state: " + playerResult.Exception);
                 } else {
-                    HandleUpdatedState(playerResult.Result);
+                    HandleUpdatedStateFromNetwork(playerResult.Result);
                 }
             });
         }
@@ -64,7 +70,7 @@ namespace GmusicbrowserRemote
                 if(playerResult.IsFaulted) {
                     Log.WriteLine(LogPriority.Error, c, "Problem fetching player state: " + playerResult.Exception);
                 } else {
-                    HandleUpdatedState(playerResult.Result);
+                    HandleUpdatedStateFromNetwork(playerResult.Result);
                 }
             });
         }
@@ -90,19 +96,41 @@ namespace GmusicbrowserRemote
 
             playButton.Click += delegate {
                 // button.Text = string.Format ("{0} clicks!", count++);
-                gmb.PushNewPlayerState(new Player() { Playing = 1 });
+                gmb.PushNewPlayerState(new Player() { Playing = currentState.Playing == 1 ? 0 : 1 }).ContinueWith((playerResult) => {
+                    if(playerResult.IsFaulted) {
+                    } else {
+                        HandleUpdatedStateFromNetwork(playerResult.Result);
+                    }
+                });
             };
 
             ratingBar.RatingBarChange += (sender, e) => {
                 // PushNewPlayerState (new PlayerState() {
+                // WELL SHEET, I NEED ME CURRENT SONG
+                if(currentState != null && currentState.Current != null) {
+                    var newSong = new Song() { Id = currentState.Current.Id, Rating = (int)(ratingBar.Rating * 20)};
+                    gmb.PostUpdatedSong(newSong);
+                }
             };
 
             nextButton.Click += (sender, e) => {
-                // PushNewPlayerState(new PlayerState() {
+                gmb.Next().ContinueWith((playerResult) => {
+                    HandleUpdatedStateFromNetwork(playerResult.Result);
+                });
+            };
+
+            prevButton.Click += (sender, e) => {
+                gmb.Previous ().ContinueWith((playerResult) => {
+                    HandleUpdatedStateFromNetwork(playerResult.Result);
+                });
             };
 
             volumeSeekBar.ProgressChanged += (sender, e) => {
                 gmb.PushNewPlayerState (new Player() { Volume = volumeSeekBar.Progress / (float)100 });
+            };
+
+            songSeekBar.ProgressChanged += (sender, e) => {
+                gmb.PushNewPlayerState (new Player() { PlayPosition = songSeekBar.Progress });
             };
 
             // Architecture questions:

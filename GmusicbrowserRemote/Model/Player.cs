@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json.Serialization;
 
 namespace GmusicbrowserRemote
 {
@@ -24,6 +25,8 @@ namespace GmusicbrowserRemote
         /// The volume, between 0 and 100 (on incoming), or between 0 and 1 (on outgoing, it's a bug in the GMB http-server plugin).
         /// </value>
         public float? Volume { get; set; }
+
+        [JsonProperty()]
         public double? PlayPosition { get; set; }
 
         public Player () {

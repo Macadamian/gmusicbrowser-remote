@@ -18,7 +18,11 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_gravity="center_horizontal"
             android:paddingBottom="24dp"
-            android:paddingTop="24dp" />
+            android:paddingTop="24dp"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:padding="12dp"
+            android:height="96dp" />
         <TextView
             android:id="@+id/ArtistTextView"
             android:layout_width="wrap_content"
@@ -27,7 +31,9 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_gravity="center_horizontal"
             android:paddingTop="24dp"
-            android:paddingBottom="24dp" />
+            android:paddingBottom="24dp"
+            android:padding="12dp"
+            android:height="48dp" />
         <RatingBar
             android:id="@+id/RatingBar"
             android:layout_width="wrap_content"
@@ -82,5 +88,7 @@
     <SeekBar
         android:id="@+id/SongSeekbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0" />
 </LinearLayout>
