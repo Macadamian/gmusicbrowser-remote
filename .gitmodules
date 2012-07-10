@@ -1,3 +1,6 @@
 [submodule "dependencies/RestSharp"]
 	path = dependencies/RestSharp
 	url = git://github.com/restsharp/RestSharp.git
+[submodule "dependencies/Newtonsoft.Json"]
+	path = dependencies/Newtonsoft.Json
+	url = git://github.com/ayoung/Newtonsoft.Json.git
