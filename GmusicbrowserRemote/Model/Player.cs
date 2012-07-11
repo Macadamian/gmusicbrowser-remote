@@ -22,11 +22,10 @@ namespace GmusicbrowserRemote
         /// NB. Only nullable so that serializing the class for posting can optionally include the value.  Incoming should always include it.
         /// </summary>
         /// <value>
-        /// The volume, between 0 and 100 (on incoming), or between 0 and 1 (on outgoing, it's a bug in the GMB http-server plugin).
+        /// The volume, between 0 and 100 (on incoming), or a float between 0 and 1 (on outgoing, it's a bug in the GMB http-server plugin).
         /// </value>
         public float? Volume { get; set; }
 
-        [JsonProperty()]
         public double? PlayPosition { get; set; }
 
         public Player () {

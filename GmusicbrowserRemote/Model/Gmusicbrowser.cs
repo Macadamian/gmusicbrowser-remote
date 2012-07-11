@@ -25,6 +25,10 @@ namespace GmusicbrowserRemote
         }
 
         protected override string ResolvePropertyName (string propertyName) {
+            if ("PlayPosition".Equals (propertyName)) {
+                // HACK: deal with an *mcs compiler crash* (?!) caused by putting the JsonProperty attribute on the PlayPosition field of Player directly.
+                return "playposition";
+            }
             return regex.Replace(propertyName, "$1$3_$2$4").ToLowerInvariant();
         }
     }

@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Android.Util;
+using System.Threading.Tasks;
 
 namespace GmusicbrowserRemote
 {
@@ -33,12 +34,17 @@ namespace GmusicbrowserRemote
 
         SeekBar songSeekBar;
 
+        ProgressDialog prog;
+
         private Player currentState;
+
+        private bool preventSeekBarUpdates = false;
 
         protected void HandleUpdatedStateFromNetwork (Player state) {
             Log.WriteLine(Android.Util.LogPriority.Info, "Activity1", String.Format ("SUCCESS, CURRENTLY {0}: {1} " , state.Playing ==  1 ? "Playing" : "Stopped", state.Current.Title));
             RunOnUiThread(() => {
                 currentState = state;
+                preventSeekBarUpdates = true;
                 titleTextView.SetText (state.Current.Title, TextView.BufferType.Normal);
                 artistTextView.SetText (state.Current.Artist, TextView.BufferType.Normal);
                 if(state.Current != null) {
@@ -52,6 +58,7 @@ namespace GmusicbrowserRemote
                 volumeSeekBar.Progress = (int)state.Volume.Value; // volume always has a value
 
                 playButton.SetImageResource(state.Playing == 1 ? Resource.Drawable.media_pause : Resource.Drawable.media_play);
+                preventSeekBarUpdates = false;
             });
         }
 
@@ -65,14 +72,17 @@ namespace GmusicbrowserRemote
             });
         }
 
-        protected void UpdateFromServer() { 
+        protected Task UpdateFromServer() {
+            var task = new TaskCompletionSource<bool>();
             gmb.FetchCurrentPlayerState().ContinueWith((playerResult) => {
                 if(playerResult.IsFaulted) {
                     Log.WriteLine(LogPriority.Error, c, "Problem fetching player state: " + playerResult.Exception);
                 } else {
                     HandleUpdatedStateFromNetwork(playerResult.Result);
+                    task.SetResult(true);
                 }
             });
+            return task.Task;
         }
 
         protected override void OnCreate (Bundle bundle) {
@@ -83,8 +93,6 @@ namespace GmusicbrowserRemote
             // Set our view from the "main" layout resource
             SetContentView (Resource.Layout.Main);
 
-            // Get our button from the layout resource,
-            // and attach an event to it
             playButton = FindViewById<ImageButton> (Resource.Id.PlayButton);
             titleTextView = FindViewById <TextView> (Resource.Id.TitleTextView);
             artistTextView = FindViewById <TextView> (Resource.Id.ArtistTextView);
@@ -105,8 +113,6 @@ namespace GmusicbrowserRemote
             };
 
             ratingBar.RatingBarChange += (sender, e) => {
-                // PushNewPlayerState (new PlayerState() {
-                // WELL SHEET, I NEED ME CURRENT SONG
                 if(currentState != null && currentState.Current != null) {
                     var newSong = new Song() { Id = currentState.Current.Id, Rating = (int)(ratingBar.Rating * 20)};
                     gmb.PostUpdatedSong(newSong);
@@ -126,27 +132,30 @@ namespace GmusicbrowserRemote
             };
 
             volumeSeekBar.ProgressChanged += (sender, e) => {
-                gmb.PushNewPlayerState (new Player() { Volume = volumeSeekBar.Progress / (float)100 });
+                if(!preventSeekBarUpdates) {
+                    gmb.PushNewPlayerState (new Player() { Volume = volumeSeekBar.Progress / (float)100 });
+                }
             };
 
             songSeekBar.ProgressChanged += (sender, e) => {
-                gmb.PushNewPlayerState (new Player() { PlayPosition = songSeekBar.Progress });
+                if(!preventSeekBarUpdates) {
+                    gmb.PushNewPlayerState (new Player() { PlayPosition = songSeekBar.Progress });
+                }
             };
 
-            // Architecture questions:
-
-            // On Android, it often makes sense to have all of the data layer inside a Service, and then the Views and Controllers use IPC
-            // (such as via a ContentProvider, or through your own custom Binder) to talk to it.
-
-            // the presence of offline syncing makes a big difference here.
-
-            // if offline syncing
+            prog = new ProgressDialog (this);
+            prog.SetProgressStyle(ProgressDialogStyle.Spinner);
+            prog.SetMessage(this.GetString(Resource.String.connection_progress));
+            prog.Show ();
         }
 
         protected override void OnResume () {
             base.OnResume ();
             Log.WriteLine(LogPriority.Info, c, "RESUME'D");
-            UpdateFromServer ();
+            UpdateFromServer ().ContinueWith((taskResult) => {
+                if(prog != null) prog.Dismiss();
+                prog = null;
+            });
         }
 
         protected override void OnPause () {
