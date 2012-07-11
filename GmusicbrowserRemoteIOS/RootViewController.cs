@@ -3,6 +3,7 @@ using System.Drawing;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
+using GmusicbrowserRemote;
 
 namespace GmusicbrowserRemoteIOS
 {
@@ -34,7 +35,8 @@ namespace GmusicbrowserRemoteIOS
 
         public override void PrepareForSegue (UIStoryboardSegue segue, NSObject sender) {
             DetailViewController remote = (DetailViewController) segue.DestinationViewController;
-            // remote
+            Gmusicbrowser gmb = new Gmusicbrowser("macdesktop.orospakr.ca", 8081);
+            remote.SetGmusicbrowser(gmb);
             base.PrepareForSegue (segue, sender);
         }
 		

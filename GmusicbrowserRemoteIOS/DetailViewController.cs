@@ -4,11 +4,14 @@ using System.Collections.Generic;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
+using GmusicbrowserRemote;
 
 namespace GmusicbrowserRemoteIOS
 {
     public partial class DetailViewController : UIViewController
     {
+        Gmusicbrowser gmb;
+
         static bool UserInterfaceIdiomIsPhone {
             get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
         }
@@ -123,6 +126,14 @@ namespace GmusicbrowserRemoteIOS
         }
 		
 		#endregion
+
+        public void SetGmusicbrowser(Gmusicbrowser gmb) {
+            this.gmb = gmb;
+        }
+
+        partial void SkipClicked(NSObject sender) {
+            this.gmb.Next ();
+        }
     }
 }
 

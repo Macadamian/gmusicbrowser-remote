@@ -1,3 +1,4 @@
+// WARNING
 //
 // This file has been generated automatically by MonoDevelop to store outlets and
 // actions made in the Xcode designer. If it is removed, they will be lost.
@@ -7,26 +8,29 @@ using MonoTouch.Foundation;
 
 namespace GmusicbrowserRemoteIOS
 {
-    [Register ("DetailViewController")]
-    partial class DetailViewController
-    {
-        [Outlet]
-        MonoTouch.UIKit.UILabel detailDescriptionLabel { get; set; }
-		
-        [Outlet]
-        MonoTouch.UIKit.UIToolbar toolbar { get; set; }
-		
-        void ReleaseDesignerOutlets () {
-            if (detailDescriptionLabel != null) {
-                detailDescriptionLabel.Dispose ();
-                detailDescriptionLabel = null;
-            }
-			
-            if (toolbar != null) {
-                toolbar.Dispose ();
-                toolbar = null;
-            }
-        }
-    }
-}
+	[Register ("DetailViewController")]
+	partial class DetailViewController
+	{
+		[Outlet]
+		MonoTouch.UIKit.UILabel detailDescriptionLabel { get; set; }
 
+		[Outlet]
+		MonoTouch.UIKit.UIToolbar toolbar { get; set; }
+
+		[Action ("SkipClicked:")]
+		partial void SkipClicked (MonoTouch.Foundation.NSObject sender);
+		
+		void ReleaseDesignerOutlets ()
+		{
+			if (detailDescriptionLabel != null) {
+				detailDescriptionLabel.Dispose ();
+				detailDescriptionLabel = null;
+			}
+
+			if (toolbar != null) {
+				toolbar.Dispose ();
+				toolbar = null;
+			}
+		}
+	}
+}
