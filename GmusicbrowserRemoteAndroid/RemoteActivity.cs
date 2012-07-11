@@ -88,7 +88,7 @@ namespace GmusicbrowserRemote
         protected override void OnCreate (Bundle bundle) {
             base.OnCreate (bundle);
 
-            gmb = new Gmusicbrowser();
+            gmb = new Gmusicbrowser("macdesktop.orospakr.ca", 8081);
 
             // Set our view from the "main" layout resource
             SetContentView (Resource.Layout.Main);

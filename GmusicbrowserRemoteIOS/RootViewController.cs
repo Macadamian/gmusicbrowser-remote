@@ -31,6 +31,12 @@ namespace GmusicbrowserRemoteIOS
                 return true;
             }
         }
+
+        public override void PrepareForSegue (UIStoryboardSegue segue, NSObject sender) {
+            DetailViewController remote = (DetailViewController) segue.DestinationViewController;
+            // remote
+            base.PrepareForSegue (segue, sender);
+        }
 		
         public override void DidReceiveMemoryWarning () {
             // Releases the view if it doesn't have a superview.

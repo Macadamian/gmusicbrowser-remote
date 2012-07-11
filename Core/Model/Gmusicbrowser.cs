@@ -2,7 +2,7 @@ using System;
 using RestSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Android.Util;
+// using Android.Util;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
@@ -39,11 +39,12 @@ namespace GmusicbrowserRemote
 
         RestClient gmbClient;
 
-        // TODO: work out how how to properly error-out TaskCompletionSources.
-
-
-        public Gmusicbrowser () {
-            gmbClient = new RestClient ("http://macdesktop.orospakr.ca:8081");
+        public Gmusicbrowser (string hostname, int port) {
+            var uri = new UriBuilder();
+            uri.Host = hostname;
+            uri.Port = port;
+            uri.Scheme = "http";
+            gmbClient = new RestClient (uri.ToString());
         }
 
         public Player DeserializePlayer (string playerJson) {
@@ -51,7 +52,7 @@ namespace GmusicbrowserRemote
                 return JsonConvert.DeserializeObject<Player>(playerJson);
             } catch (Exception e) {
                 var err = "Problem decoding Player state JSON from GMB: " + e;
-                Log.WriteLine (LogPriority.Error, c, err);
+                // FIXME Log.WriteLine (LogPriority.Error, c, err);
                 throw new FormatException(err);
             }
         }
@@ -61,7 +62,7 @@ namespace GmusicbrowserRemote
                 return JsonConvert.DeserializeObject<Song>(songJson);
             } catch (Exception e) {
                 var err = "Problem decoding Player state JSON from GMB: " + e;
-                Log.WriteLine (LogPriority.Error, c, err);
+                // FIXME Log.WriteLine (LogPriority.Error, c, err);
                 throw new FormatException(err);
             }
         }
@@ -89,11 +90,11 @@ namespace GmusicbrowserRemote
             gmbClient.ExecuteAsync (req, (response) => {
                 if(response.ResponseStatus == ResponseStatus.Error) {
                     var err = String.Format ("Network problem {0} from GMB: {1}, {2}, {3}", why, response.ErrorMessage, response.Content, response.ErrorException);
-                    Log.WriteLine(LogPriority.Error, c, err);
+                    // FIXME Log.WriteLine(LogPriority.Error, c, err);
                     task.SetException(new Exception(err));
                 } else if (response.StatusCode != System.Net.HttpStatusCode.OK) {
                     var err = String.Format ("Problem {0} from GMB: {1}, {2}, {3}", why, response.ErrorMessage, response.StatusCode, response.ErrorException);
-                    Log.WriteLine(LogPriority.Error, c, err);
+                    // FIXME Log.WriteLine(LogPriority.Error, c, err);
                     task.SetException(new Exception(err));
                 } else {
                     task.SetResult (response.Content);
