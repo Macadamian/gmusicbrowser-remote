@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 
 namespace GmusicbrowserRemote
 {
-    [Activity (Label = "GmusicbrowserRemote", MainLauncher = true)]
-    public class Activity1 : Activity
+    [Activity (Label = "@string/app_name", MainLauncher = true, Icon = "@drawable/gmusicbrowser")]
+    public class RemoteActivity : Activity
     {
         readonly string c = "RemoteActivity";
 
