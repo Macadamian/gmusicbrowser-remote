@@ -93,8 +93,10 @@ namespace GmusicbrowserRemote.Core
         public Task<Player> PushNewPlayerState (Player state) {
             var req = new RestRequest("/player", Method.POST);
 
-            req.AddParameter("text/json", JsonConvert.SerializeObject(state, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new UnderscorePropertyNamesResolver(), NullValueHandling = NullValueHandling.Ignore }), ParameterType.RequestBody);
+            var json = JsonConvert.SerializeObject(state, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new UnderscorePropertyNamesResolver(), NullValueHandling = NullValueHandling.Ignore });
+            req.AddParameter("text/json", json, ParameterType.RequestBody);
 
+            Logging.Debug (c, "Posting updated player state...");
             return ExecuteHttpTaskThatReturnsPlayerState(req, "pushing player state");
         }
 

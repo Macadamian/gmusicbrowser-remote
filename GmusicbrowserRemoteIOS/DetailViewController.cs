@@ -12,7 +12,9 @@ namespace GmusicbrowserRemoteIOS
 {
     public partial class DetailViewController : UIViewController
     {
+        private static readonly string c = "DetailViewController";
         Gmusicbrowser gmb;
+        Player state;
 
         static bool UserInterfaceIdiomIsPhone {
             get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
@@ -110,6 +112,7 @@ namespace GmusicbrowserRemoteIOS
 
         public void HandleUpdatedStateFromNetwork (Player state) {
             this.InvokeOnMainThread(() => {
+                this.state = state;
                 this.VolumeSlider.SetValue(state.Volume.Value, true);
                 if(state.Current != null) {
                     this.ArtistLabel.Text = state.Current.Artist;
@@ -126,9 +129,9 @@ namespace GmusicbrowserRemoteIOS
                     this.SeekSlider.SetValue (0, false);
                 }
                 if(state.Playing == 1) {
-                    this.PlayPauseButton.TitleLabel.Text = "Pause";
+                    this.PlayPauseButton.SetTitle("Pause", UIControlState.Normal);
                 } else {
-                    this.PlayPauseButton.TitleLabel.Text = "Play";
+                    this.PlayPauseButton.SetTitle ("Play", UIControlState.Normal);
                 }
             });
         }
@@ -149,12 +152,12 @@ namespace GmusicbrowserRemoteIOS
 
             if (this.gmb != gmb) {
                 this.gmb = gmb;
-                
+
                 // Update the view
                 ConfigureView ();
                 UpdateFromServer ();
             }
-            
+
             if (this.popoverController != null)
                 this.popoverController.Dismiss (true);
         }
@@ -165,6 +168,13 @@ namespace GmusicbrowserRemoteIOS
 
         partial void PrevClicked(NSObject sender) {
             this.gmb.Previous().ContinueWith(HandleUpdatedStateFromNetworkCompletedTask);
+        }
+
+        partial void PlayPauseClicked(NSObject sender) {
+            if(state != null) {
+                var newState = new Player() { Playing = state.Playing == 1 ? 0 : 1};
+                this.gmb.PushNewPlayerState(newState).ContinueWith(HandleUpdatedStateFromNetworkCompletedTask);
+            }
         }
     }
 }
