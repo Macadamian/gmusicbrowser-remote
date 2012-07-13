@@ -42,7 +42,7 @@ namespace GmusicbrowserRemote
         private bool preventSeekBarUpdates = false;
 
         protected void HandleUpdatedStateFromNetwork (Player state) {
-            Log.WriteLine(Android.Util.LogPriority.Info, "Activity1", String.Format ("SUCCESS, CURRENTLY {0}: {1} " , state.Playing ==  1 ? "Playing" : "Stopped", state.Current.Title));
+            Log.WriteLine(Android.Util.LogPriority.Info, c, String.Format ("SUCCESS, CURRENTLY {0}: {1} " , state.Playing ==  1 ? "Playing" : "Stopped", state.Current.Title));
             RunOnUiThread(() => {
                 currentState = state;
                 preventSeekBarUpdates = true;
@@ -65,8 +65,9 @@ namespace GmusicbrowserRemote
 
         protected void PushNewPlayerState (Player state) {
             gmb.PushNewPlayerState(state).ContinueWith ((playerResult) => {
-                if(playerResult.IsFaulted) {
+                if(playerResult.IsFaulted || playerResult.IsCanceled) {
                     Log.WriteLine(LogPriority.Error, c, "Problem pushing player state: " + playerResult.Exception);
+                    // TODO: reflect error in UI
                 } else {
                     HandleUpdatedStateFromNetwork(playerResult.Result);
                 }
@@ -76,8 +77,9 @@ namespace GmusicbrowserRemote
         protected Task UpdateFromServer() {
             var task = new TaskCompletionSource<bool>();
             gmb.FetchCurrentPlayerState().ContinueWith((playerResult) => {
-                if(playerResult.IsFaulted) {
+                if(playerResult.IsFaulted || playerResult.IsCanceled) {
                     Log.WriteLine(LogPriority.Error, c, "Problem fetching player state: " + playerResult.Exception);
+                    // TODO: reflect error in UI
                 } else {
                     HandleUpdatedStateFromNetwork(playerResult.Result);
                     task.SetResult(true);

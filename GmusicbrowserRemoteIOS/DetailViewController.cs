@@ -6,6 +6,7 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using GmusicbrowserRemote;
 using GmusicbrowserRemote.Core;
+using System.Threading.Tasks;
 
 namespace GmusicbrowserRemoteIOS
 {
@@ -107,6 +108,33 @@ namespace GmusicbrowserRemoteIOS
 		
 		#endregion
 
+        public void HandleUpdatedStateFromNetwork (Player state) {
+            this.InvokeOnMainThread(() => {
+                this.VolumeSlider.SetValue(state.Volume.Value, true);
+                if(state.Current != null) {
+                    this.ArtistLabel.Text = state.Current.Artist;
+                    this.TitleLabel.Text = state.Current.Title;
+                    this.SeekSlider.MaxValue = state.Current.Length.Value;
+                    this.SeekSlider.SetValue (state.PlayPosition.Value, true);
+                } else {
+                    this.ArtistLabel.Text = "";
+                    this.TitleLabel.Text = "";
+                    this.SeekSlider.SetValue (0, false);
+                }
+            });
+        }
+
+        public void HandleUpdatedStateFromNetworkCompletedTask (Task<Player> task) {
+            if (task.IsCanceled || task.IsFaulted) {
+            } else {
+                HandleUpdatedStateFromNetwork (task.Result);
+            }
+        }
+
+        public void UpdateFromServer() {
+            this.gmb.FetchCurrentPlayerState().ContinueWith(HandleUpdatedStateFromNetworkCompletedTask);
+        }
+
         public void SetGmusicbrowser(Gmusicbrowser gmb) {
             // this.detailDescriptionLabel.Text = gmb.Hostname;
 
@@ -115,6 +143,7 @@ namespace GmusicbrowserRemoteIOS
                 
                 // Update the view
                 ConfigureView ();
+                UpdateFromServer ();
             }
             
             if (this.popoverController != null)
@@ -122,7 +151,11 @@ namespace GmusicbrowserRemoteIOS
         }
 
         partial void SkipClicked(NSObject sender) {
-            this.gmb.Next ();
+            this.gmb.Next().ContinueWith(HandleUpdatedStateFromNetworkCompletedTask);
+        }
+
+        partial void PrevClicked(NSObject sender) {
+            this.gmb.Previous().ContinueWith(HandleUpdatedStateFromNetworkCompletedTask);
         }
     }
 }

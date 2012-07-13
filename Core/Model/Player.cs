@@ -26,7 +26,7 @@ namespace GmusicbrowserRemote.Core
         /// </value>
         public float? Volume { get; set; }
 
-        public double? PlayPosition { get; set; }
+        public float? PlayPosition { get; set; }
 
         public Player () {
         }

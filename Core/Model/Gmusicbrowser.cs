@@ -57,9 +57,19 @@ namespace GmusicbrowserRemote.Core
             gmbClient = new RestClient (uri.ToString());
         }
 
+        // I have this nullable presence checking in the Deserialize* methods because I made
+        // the fields nullable in the models for the purpose of doing selective updates
+
         public Player DeserializePlayer (string playerJson) {
             try {
-                return JsonConvert.DeserializeObject<Player>(playerJson);
+                var player = JsonConvert.DeserializeObject<Player>(playerJson);
+                if(player.Volume == null) {
+                    throw new FormatException("Volume field should not be empty in Player.");
+                }
+                if(player.Playing == null) {
+                    throw new FormatException("Playing field should not be empty in Player.");
+                }
+                return player;
             } catch (Exception e) {
                 var err = "Problem decoding Player state JSON from GMB: " + e;
                 // FIXME Log.WriteLine (LogPriority.Error, c, err);
@@ -69,7 +79,11 @@ namespace GmusicbrowserRemote.Core
 
         public Song DeserializeSong (string songJson) {
             try {
-                return JsonConvert.DeserializeObject<Song>(songJson);
+                var song = JsonConvert.DeserializeObject<Song>(songJson);
+                if(song.Length == null) {
+                    throw new FormatException("Length field should not be empty in Song.");
+                }
+                return song;
             } catch (Exception e) {
                 var err = "Problem decoding Player state JSON from GMB: " + e;
                 // FIXME Log.WriteLine (LogPriority.Error, c, err);
@@ -89,7 +103,12 @@ namespace GmusicbrowserRemote.Core
             var task = new TaskCompletionSource<Player>();
 
             ExecuteHttpTask (req, why).ContinueWith((requestResult) => {
-                task.SetResult (DeserializePlayer(requestResult.Result));
+                try {
+                    var player = DeserializePlayer(requestResult.Result);
+                    task.SetResult (player);
+                } catch (Exception e) {
+                    task.SetException(e);
+                }
             });
 
             return task.Task;
@@ -146,7 +165,13 @@ namespace GmusicbrowserRemote.Core
             req.AddParameter("song", JsonConvert.SerializeObject(song, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new UnderscorePropertyNamesResolver(), NullValueHandling = NullValueHandling.Ignore }));
             // req.AddParameter("song", JsonConvert
             ExecuteHttpTask(req, "pushing song").ContinueWith((songResult) => {
-                task.SetResult (DeserializeSong(songResult.Result));
+                try {
+                    var updatedSong = DeserializeSong(songResult.Result);
+                    task.SetResult (updatedSong);
+                } catch (Exception e) {
+                    task.SetException(e);
+                }
+
             });
             return task.Task;
         }
