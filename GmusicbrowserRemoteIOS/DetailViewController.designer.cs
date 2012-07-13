@@ -35,6 +35,9 @@ namespace GmusicbrowserRemoteIOS
 		[Action ("SkipClicked:")]
 		partial void SkipClicked (MonoTouch.Foundation.NSObject sender);
 
+		[Action ("PlayPauseClicked:")]
+		partial void PlayPauseClicked (MonoTouch.Foundation.NSObject sender);
+
 		[Action ("PrevClicked:")]
 		partial void PrevClicked (MonoTouch.Foundation.NSObject sender);
 		
