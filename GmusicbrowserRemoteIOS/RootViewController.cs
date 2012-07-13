@@ -14,6 +14,8 @@ namespace GmusicbrowserRemoteIOS
 {
     public partial class RootViewController : UITableViewController
     {
+        private static readonly string c = "RootViewController";
+
         private delegate void ServerListTableSourceReady();
 
         private class ServerListTableSource : UITableViewSource {
@@ -28,7 +30,7 @@ namespace GmusicbrowserRemoteIOS
                 this.serverList = new ServerList();
                 this.serverList.LoadFromStorage().ContinueWith((storageResult) => {
                     if(storageResult.IsCanceled || storageResult.IsFaulted) {
-                        Console.Out.WriteLine ("AUGH FAILURE: " + storageResult.Exception);
+                        Logging.Error(c, "AUGH FAILURE: " + storageResult.Exception);
                     } else {
                         this.BeginInvokeOnMainThread(() => {
                             this.currentServers = storageResult.Result;

@@ -115,11 +115,20 @@ namespace GmusicbrowserRemoteIOS
                     this.ArtistLabel.Text = state.Current.Artist;
                     this.TitleLabel.Text = state.Current.Title;
                     this.SeekSlider.MaxValue = state.Current.Length.Value;
-                    this.SeekSlider.SetValue (state.PlayPosition.Value, true);
+                    if(state.PlayPosition.HasValue) {
+                        this.SeekSlider.SetValue (state.PlayPosition.Value, true);
+                    } else {
+                        this.SeekSlider.Value = 0;
+                    }
                 } else {
                     this.ArtistLabel.Text = "";
                     this.TitleLabel.Text = "";
                     this.SeekSlider.SetValue (0, false);
+                }
+                if(state.Playing == 1) {
+                    this.PlayPauseButton.TitleLabel.Text = "Pause";
+                } else {
+                    this.PlayPauseButton.TitleLabel.Text = "Play";
                 }
             });
         }

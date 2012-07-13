@@ -5,12 +5,12 @@ using System.IO.IsolatedStorage;
 using Newtonsoft.Json;
 using System.IO;
 using System.Text;
-using System.Diagnostics;
 
 namespace GmusicbrowserRemote.Core
 {
     public class ServerList
     {
+        private readonly string c = "ServerList";
         private readonly String LIST_FILE_NAME = "gmbs.json";
 
         public ServerList () {
@@ -64,7 +64,7 @@ namespace GmusicbrowserRemote.Core
                     store.Dispose();
                     task.SetResult(true);
                 } catch (Exception e) {
-                    Debug.WriteLine("AU\tGH: \t" + e);
+                    Logging.Error(c, "Unable to write server list to storage: " + e);
                 }
             }, null);
             return task.Task;

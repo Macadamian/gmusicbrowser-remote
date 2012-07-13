@@ -2,7 +2,6 @@ using System;
 using RestSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-// using Android.Util;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
@@ -35,7 +34,7 @@ namespace GmusicbrowserRemote.Core
 
     public class Gmusicbrowser
     {
-        readonly string c = "Gmusicbrowser";
+        static readonly string c = "Gmusicbrowser";
 
         public string Hostname { get; private set; }
         public UInt16 Port { get; private set; }
@@ -72,7 +71,7 @@ namespace GmusicbrowserRemote.Core
                 return player;
             } catch (Exception e) {
                 var err = "Problem decoding Player state JSON from GMB: " + e;
-                // FIXME Log.WriteLine (LogPriority.Error, c, err);
+                Logging.Error(c, err);
                 throw new FormatException(err);
             }
         }
@@ -86,7 +85,7 @@ namespace GmusicbrowserRemote.Core
                 return song;
             } catch (Exception e) {
                 var err = "Problem decoding Player state JSON from GMB: " + e;
-                // FIXME Log.WriteLine (LogPriority.Error, c, err);
+                Logging.Error(c, err);
                 throw new FormatException(err);
             }
         }
@@ -119,11 +118,11 @@ namespace GmusicbrowserRemote.Core
             gmbClient.ExecuteAsync (req, (response) => {
                 if(response.ResponseStatus == ResponseStatus.Error) {
                     var err = String.Format ("Network problem {0} from GMB: {1}, {2}, {3}", why, response.ErrorMessage, response.Content, response.ErrorException);
-                    // FIXME Log.WriteLine(LogPriority.Error, c, err);
+                    Logging.Error(c, err);
                     task.SetException(new Exception(err));
                 } else if (response.StatusCode != System.Net.HttpStatusCode.OK) {
                     var err = String.Format ("Problem {0} from GMB: {1}, {2}, {3}", why, response.ErrorMessage, response.StatusCode, response.ErrorException);
-                    // FIXME Log.WriteLine(LogPriority.Error, c, err);
+                    Logging.Error(c, err);
                     task.SetException(new Exception(err));
                 } else {
                     task.SetResult (response.Content);
@@ -133,18 +132,21 @@ namespace GmusicbrowserRemote.Core
         }
 
         public Task<Player> FetchCurrentPlayerState () {
+            Logging.Debug (c, "Fetching current player state...");
             var req = new RestRequest ("/player", Method.GET);
 
             return ExecuteHttpTaskThatReturnsPlayerState(req, "fetching state");
         }
 
         public Task<Player> Next() {
+            Logging.Debug (c, "Moving to next...");
             var req = new RestRequest("/skip", Method.POST);
 
             return ExecuteHttpTaskThatReturnsPlayerState(req, "skipping to next track");
         }
 
         public Task<Player> Previous() {
+            Logging.Debug (c, "Moving to previous...");
             var req = new RestRequest("/prev", Method.POST);
 
             return ExecuteHttpTaskThatReturnsPlayerState(req, "returning to previous track");
@@ -160,6 +162,7 @@ namespace GmusicbrowserRemote.Core
         /// Song.
         /// </param>
         public Task<Song> PostUpdatedSong(Song song) {
+            Logging.Debug (c, "Posting song update for song id " + song.Id);
             var req = new RestRequest(String.Format("/songs/{0}", song.Id), Method.POST);
             var task = new TaskCompletionSource<Song>();
             req.AddParameter("song", JsonConvert.SerializeObject(song, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new UnderscorePropertyNamesResolver(), NullValueHandling = NullValueHandling.Ignore }));

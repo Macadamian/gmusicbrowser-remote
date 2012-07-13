@@ -41,6 +41,7 @@
     <Compile Include="Model\Player.cs" />
     <Compile Include="Model\Song.cs" />
     <Compile Include="Model\ServerList.cs" />
+    <Compile Include="Logging.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dependencies\Newtonsoft.Json\Newtonsoft.Json\Newtonsoft.Json.MonoTouch.csproj">
