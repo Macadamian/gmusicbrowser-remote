@@ -38,17 +38,22 @@ namespace GmusicbrowserRemote.Core
         readonly string c = "Gmusicbrowser";
 
         public string Hostname { get; private set; }
-        public int Port { get; private set; }
+        public UInt16 Port { get; private set; }
 
         RestClient gmbClient;
 
-        public Gmusicbrowser (string hostname, int port) {
-            var uri = new UriBuilder();
+        public Gmusicbrowser (string hostname, UInt16 port) {
+            var uri = new UriBuilder ();
             Hostname = hostname;
             Port = port;
             uri.Host = hostname;
             uri.Port = port;
             uri.Scheme = "http";
+            try {
+                new Uri (uri.ToString ()); // throw an exception if the URI is invalid
+            } catch {
+                throw new FormatException("Invalid hostname or port");
+            }
             gmbClient = new RestClient (uri.ToString());
         }
 

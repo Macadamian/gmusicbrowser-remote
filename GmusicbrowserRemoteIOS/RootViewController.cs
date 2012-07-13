@@ -8,6 +8,7 @@ using System.IO.IsolatedStorage;
 using MonoTouch.Dialog;
 using GmusicbrowserRemote.Core;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace GmusicbrowserRemoteIOS
 {
@@ -118,6 +119,7 @@ namespace GmusicbrowserRemoteIOS
 		
         public override void ViewDidLoad () {
             base.ViewDidLoad ();
+
             addBarButton = new UIBarButtonItem(UIBarButtonSystemItem.Add);
             addBarButton.Enabled = false;
 
@@ -129,10 +131,10 @@ namespace GmusicbrowserRemoteIOS
 
             this.ServerList.Source = serverListTableSource;
 
-            var hostEdit = new EntryElement("Hostname", "mygmb.local", "");
-            var portEdit = new EntryElement("Port", "8081", "8081");
-
             addBarButton.Clicked += (sender, e) => {
+                var hostEdit = new EntryElement("Hostname", "Host or IP address", "");
+                var portEdit = new EntryElement("Port", "TCP port the HTTP server listens on", "");
+
                 var gmbSettings = new Section() {
                     hostEdit, portEdit
                 };
@@ -141,9 +143,19 @@ namespace GmusicbrowserRemoteIOS
                 };
 
                 var settingsDialogVC = new DialogViewController(root);
-                var backButton =  new UIBarButtonItem(UIBarButtonSystemItem.Done, (s, args) => {
+                var backButton =  new UIBarButtonItem(UIBarButtonSystemItem.Add, (s, args) => {
+                    Gmusicbrowser newGmb;
+                    try {
+                        newGmb = new Gmusicbrowser(hostEdit.Value, UInt16.Parse (portEdit.Value));
+                    } catch (Exception formatEx) {
+                        Debug.WriteLine(formatEx.Message);
+                        var alert = new UIAlertView("Bogus Input", "Invalid host or port", null, "OK");
+                        alert.Message = "Invalid host or port.";
+                        alert.AlertViewStyle = UIAlertViewStyle.Default;
+                        alert.Show ();
+                        return;
+                    }
                     this.NavigationController.PopViewControllerAnimated(true);
-                    var newGmb = new Gmusicbrowser(hostEdit.Value, Int16.Parse (portEdit.Value));
                     serverListTableSource.InsertNewServer(newGmb);
                 });
                

@@ -5,6 +5,7 @@ using System.IO.IsolatedStorage;
 using Newtonsoft.Json;
 using System.IO;
 using System.Text;
+using System.Diagnostics;
 
 namespace GmusicbrowserRemote.Core
 {
@@ -54,11 +55,17 @@ namespace GmusicbrowserRemote.Core
             var fd = store.OpenFile (tempFile, FileMode.CreateNew);
 
             fd.BeginWrite(jsonBytes, 0, jsonBytes.Length, (writeResult) => {
-                fd.Close();
-                store.DeleteFile(LIST_FILE_NAME); // HACK: augh, why oh why doesn't it let me replace file?!  You can tell this API was designed by windows people
-                store.MoveFile(tempFile, LIST_FILE_NAME);
-                store.Dispose();
-                task.SetResult(true);
+                try {
+                    fd.Close();
+                    if(store.FileExists(LIST_FILE_NAME)) {
+                        store.DeleteFile(LIST_FILE_NAME); // HACK: augh, why oh why doesn't it let me replace file?!  You can tell this API was designed by windows people
+                    }
+                    store.MoveFile(tempFile, LIST_FILE_NAME);
+                    store.Dispose();
+                    task.SetResult(true);
+                } catch (Exception e) {
+                    Debug.WriteLine("AU\tGH: \t" + e);
+                }
             }, null);
             return task.Task;
         }
