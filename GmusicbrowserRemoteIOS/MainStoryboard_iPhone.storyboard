@@ -59,7 +59,11 @@
                             <outlet property="delegate" destination="12" id="15"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Master" id="35"/>
+                    <navigationItem key="navigationItem" title="Select GMB" id="35"/>
+                    <connections>
+                        <outlet property="ServerList" destination="13" id="Ifa-V0-UH8"/>
+                        <outlet property="serverList" destination="13" id="9MP-1R-u0s"/>
+                    </connections>
                 </tableViewController>
             </objects>
             <point key="canvasLocation" x="455" y="64"/>
@@ -67,7 +71,7 @@
         <scene sceneID="24">
             <objects>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="23" sceneMemberID="firstResponder"/>
-                <viewController storyboardIdentifier="detail" title="Detail" id="21" customClass="DetailViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="remote_control" title="Detail" id="21" customClass="DetailViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="22">
                         <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -118,6 +122,10 @@
         </class>
         <class className="RootViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/RootViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="AddButtonClicked:"/>
+                <relationship kind="outlet" name="ServerList" candidateClass="UITableView"/>
+            </relationships>
         </class>
     </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

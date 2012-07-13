@@ -95,24 +95,12 @@
     <Compile Include="DetailViewController.designer.cs">
       <DependentUpon>DetailViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="..\Core\Model\Gmusicbrowser.cs">
-      <Link>Core\Model\Gmusicbrowser.cs</Link>
-    </Compile>
-    <Compile Include="..\Core\Model\Player.cs">
-      <Link>Core\Model\Player.cs</Link>
-    </Compile>
-    <Compile Include="..\Core\Model\Song.cs">
-      <Link>Core\Model\Song.cs</Link>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />
     <InterfaceDefinition Include="MainStoryboard_iPad.storyboard" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="Core\" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dependencies\Newtonsoft.Json\Newtonsoft.Json\Newtonsoft.Json.MonoTouch.csproj">
       <Project>{12448CD5-D860-4C1C-8B9F-139F3794B9BC}</Project>
@@ -121,6 +109,14 @@
     <ProjectReference Include="..\dependencies\RestSharp\RestSharp.MonoTouch\RestSharp.MonoTouch.csproj">
       <Project>{E9A9D1C5-4E06-4D31-9809-A97188C70B2C}</Project>
       <Name>RestSharp.MonoTouch</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\dependencies\MonoTouch.Dialog\MonoTouch.Dialog\MonoTouch.Dialog.csproj">
+      <Project>{3FFBFFF8-5560-4EDE-82E5-3FFDFBBA8A50}</Project>
+      <Name>MonoTouch.Dialog</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Core.iOS.csproj">
+      <Project>{FDD10A7E-802B-45CD-ADC5-D0BAE7EDF249}</Project>
+      <Name>Core.iOS</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

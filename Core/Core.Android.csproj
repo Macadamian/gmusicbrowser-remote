@@ -5,17 +5,13 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{AEB47793-2420-492F-ADF1-FE7D0905C4DB}</ProjectGuid>
+    <ProjectGuid>{F2D87DB0-6C23-46F3-A6A7-8E9BB4FA5DA1}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>GmusicbrowserRemote</RootNamespace>
-    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <RootNamespace>GmusicbrowserRemote.Core</RootNamespace>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidResgenClass>Resource</AndroidResgenClass>
-    <AndroidApplication>True</AndroidApplication>
-    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
-    <AssemblyName>GmusicbrowserRemote</AssemblyName>
-    <TargetFrameworkVersion>v4.0.3</TargetFrameworkVersion>
+    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <AssemblyName>Core</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,37 +40,21 @@
     <Reference Include="System.Core" />
     <Reference Include="Mono.Android" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Resources\Resource.designer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RemoteActivity.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\AboutResources.txt" />
-    <None Include="Assets\AboutAssets.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\Main.axml" />
-    <AndroidResource Include="Resources\values\Strings.xml" />
-    <AndroidResource Include="Resources\drawable\Icon.png" />
-    <AndroidResource Include="Resources\drawable\media_next.png" />
-    <AndroidResource Include="Resources\drawable\media_pause.png" />
-    <AndroidResource Include="Resources\drawable\media_play.png" />
-    <AndroidResource Include="Resources\drawable\media_previous.png" />
-    <AndroidResource Include="Resources\drawable\gmusicbrowser.png" />
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <ItemGroup>
+    <Compile Include="Model\Gmusicbrowser.cs" />
+    <Compile Include="Model\Player.cs" />
+    <Compile Include="Model\Song.cs" />
+    <Compile Include="Model\ServerList.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dependencies\RestSharp\RestSharp.MonoDroid\RestSharp.MonoDroid.csproj">
+      <Project>{1B662C38-984F-4B6A-89B5-AFF7FCBE43A2}</Project>
+      <Name>RestSharp.MonoDroid</Name>
+    </ProjectReference>
     <ProjectReference Include="..\dependencies\Newtonsoft.Json\Newtonsoft.Json\Newtonsoft.Json.MonoDroid.csproj">
       <Project>{E6C3413C-919B-486D-8B6C-225CBD921B98}</Project>
       <Name>Newtonsoft.Json.MonoDroid</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Core\Core.Android.csproj">
-      <Project>{F2D87DB0-6C23-46F3-A6A7-8E9BB4FA5DA1}</Project>
-      <Name>Core.Android</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
   </ItemGroup>
 </Project>

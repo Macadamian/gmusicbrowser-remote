@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json.Serialization;
 
-namespace GmusicbrowserRemote
+namespace GmusicbrowserRemote.Core
 {
     // // {"volume":"94","current":{"length":217,"artist":"Potshot","title":"Ultima 6 Gates of Creation OC ReMix","id":1779,"rating":80},"queue":[],"playing":1,"playposition":95.364219}
     public class Player

@@ -1,6 +1,6 @@
 using System;
 
-namespace GmusicbrowserRemote
+namespace GmusicbrowserRemote.Core
 {
     public class Song
     {

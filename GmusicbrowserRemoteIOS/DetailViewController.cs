@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using GmusicbrowserRemote;
+using GmusicbrowserRemote.Core;
 
 namespace GmusicbrowserRemoteIOS
 {
@@ -17,37 +18,16 @@ namespace GmusicbrowserRemoteIOS
         }
 
         UIPopoverController popoverController;
-        string detailItem;
-		
-        [Export("detailItem")]
-        public string DetailItem {
-            get {
-                return detailItem;
-            }
-            set {
-                SetDetailItem (value);
-            }
-        }
 		
         public DetailViewController (IntPtr handle) : base (handle) {
         }
 		
-        public void SetDetailItem (string newDetailItem) {
-            if (detailItem != newDetailItem) {
-                detailItem = newDetailItem;
-				
-                // Update the view
-                ConfigureView ();
-            }
-			
-            if (this.popoverController != null)
-                this.popoverController.Dismiss (true);
-        }
-		
         void ConfigureView () {
             // Update the user interface for the detail item
-            if (DetailItem != null)
-                this.detailDescriptionLabel.Text = DetailItem.ToString ();
+            if (gmb != null && this.detailDescriptionLabel != null) {
+                this.NavigationItem.Title = gmb.Hostname;
+                this.detailDescriptionLabel.Text = gmb.Hostname;
+            }
         }
 		
         public override void DidReceiveMemoryWarning () {
@@ -108,7 +88,7 @@ namespace GmusicbrowserRemoteIOS
         {
             public override void WillHideViewController (UISplitViewController svc, UIViewController aViewController, UIBarButtonItem barButtonItem, UIPopoverController pc) {
                 var dv = svc.ViewControllers [1] as DetailViewController;
-                barButtonItem.Title = "Master";
+                barButtonItem.Title = "Player List";
                 var items = new List<UIBarButtonItem> ();
                 items.Add (barButtonItem);
                 items.AddRange (dv.toolbar.Items);
@@ -128,7 +108,17 @@ namespace GmusicbrowserRemoteIOS
 		#endregion
 
         public void SetGmusicbrowser(Gmusicbrowser gmb) {
-            this.gmb = gmb;
+            // this.detailDescriptionLabel.Text = gmb.Hostname;
+
+            if (this.gmb != gmb) {
+                this.gmb = gmb;
+                
+                // Update the view
+                ConfigureView ();
+            }
+            
+            if (this.popoverController != null)
+                this.popoverController.Dismiss (true);
         }
 
         partial void SkipClicked(NSObject sender) {

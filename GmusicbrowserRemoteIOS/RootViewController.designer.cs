@@ -8,11 +8,21 @@ using MonoTouch.Foundation;
 
 namespace GmusicbrowserRemoteIOS
 {
-    [Register ("RootViewController")]
-    partial class RootViewController
-    {
-        void ReleaseDesignerOutlets () {
-        }
-    }
-}
+	[Register ("RootViewController")]
+	partial class RootViewController
+	{
+		[Outlet]
+		MonoTouch.UIKit.UITableView ServerList { get; set; }
 
+		[Action ("AddButtonClicked:")]
+		partial void AddButtonClicked (MonoTouch.Foundation.NSObject sender);
+		
+		void ReleaseDesignerOutlets ()
+		{
+			if (ServerList != null) {
+				ServerList.Dispose ();
+				ServerList = null;
+			}
+		}
+	}
+}

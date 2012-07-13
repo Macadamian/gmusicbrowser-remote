@@ -6,7 +6,7 @@ using Newtonsoft.Json.Serialization;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
-namespace GmusicbrowserRemote
+namespace GmusicbrowserRemote.Core
 {
     /// <summary>
     /// Resolves member mappings for a type, into lowercase underscored forms.
@@ -37,10 +37,15 @@ namespace GmusicbrowserRemote
     {
         readonly string c = "Gmusicbrowser";
 
+        public string Hostname { get; private set; }
+        public int Port { get; private set; }
+
         RestClient gmbClient;
 
         public Gmusicbrowser (string hostname, int port) {
             var uri = new UriBuilder();
+            Hostname = hostname;
+            Port = port;
             uri.Host = hostname;
             uri.Port = port;
             uri.Scheme = "http";

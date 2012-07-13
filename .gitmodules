@@ -4,3 +4,6 @@
 [submodule "dependencies/Newtonsoft.Json"]
 	path = dependencies/Newtonsoft.Json
 	url = git://github.com/ayoung/Newtonsoft.Json.git
+[submodule "dependencies/MonoTouch.Dialog"]
+	path = dependencies/MonoTouch.Dialog
+	url = git://github.com/migueldeicaza/MonoTouch.Dialog.git
