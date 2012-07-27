@@ -96,7 +96,8 @@ namespace GmusicbrowserRemote
             // Set our view from the "main" layout resource
             SetContentView (Resource.Layout.Main);
 
-            playButton = FindViewById<ImageButton> (Resource.Id.PlayButton);
+            playButton = FindViewById<ImageButton>
+                (Resource.Id.PlayButton);
             titleTextView = FindViewById <TextView> (Resource.Id.TitleTextView);
             artistTextView = FindViewById <TextView> (Resource.Id.ArtistTextView);
             ratingBar = FindViewById <RatingBar> (Resource.Id.RatingBar);
@@ -105,7 +106,7 @@ namespace GmusicbrowserRemote
             volumeSeekBar = FindViewById <SeekBar> (Resource.Id.VolumeSeekBar);
             songSeekBar = FindViewById <SeekBar> (Resource.Id.SongSeekbar);
 
-            playButton.Click += delegate {
+            playButton.Click += (sender, args) => {
                 // button.Text = string.Format ("{0} clicks!", count++);
                 gmb.PushNewPlayerState(new Player() { Playing = currentState.Playing == 1 ? 0 : 1 }).ContinueWith((playerResult) => {
                     if(playerResult.IsFaulted) {
